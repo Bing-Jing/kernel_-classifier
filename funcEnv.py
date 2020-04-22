@@ -4,7 +4,7 @@ from sklearn.gaussian_process.kernels import RBF,Matern,RationalQuadratic,ExpSin
 from scipy.interpolate import interp1d
 
 class funcEnv():
-    def __init__(self,funtype = ""):
+    def __init__(self,funtype = "", seed = 0):
         self.curFun = None
         self.maxVal = 0
         self.minVal = float('inf')
@@ -12,6 +12,7 @@ class funcEnv():
         self.kernel_var = 1.0
         self.kernel = None
         self.funType = funtype
+        self.rs = np.random.RandomState(seed)
     def reset(self,sample_point = 2000,upper_bound = 1, lower_bound = 0):
         X = np.linspace(lower_bound-0.1, upper_bound+0.1, num=sample_point)[:, None]
         X1 = np.linspace(lower_bound, upper_bound, num=sample_point)[:, None]
@@ -45,6 +46,6 @@ class funcEnv():
         u_task = np.empty(X.shape[0])
         mu = np.zeros(len(X)) # vector of the means
         C = kernel.__call__(X,X) # covariance matrix
-        u_task[:,None] = np.random.multivariate_normal(mu,C).reshape(len(X),1)
+        u_task[:,None] = self.rs.multivariate_normal(mu,C).reshape(len(X),1)
         
         return [u_task]
